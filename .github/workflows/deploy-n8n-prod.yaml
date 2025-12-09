@@ -18,7 +18,7 @@ jobs:
     environment:
       name: production
       url: https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -44,6 +44,7 @@ jobs:
             --execution-environment gen2 \
             --min-instances 1 \
             --max-instances 5 \
+            \
             --update-env-vars \
               DB_TYPE=postgresdb,\
               DB_POSTGRESDB_PORT=5432,\
@@ -53,6 +54,7 @@ jobs:
               N8N_PROTOCOL=https,\
               N8N_PORT=5678,\
               N8N_DIAGNOSTICS_ENABLED=false \
+            \
             --update-secrets \
               DB_POSTGRESDB_HOST=N8N_DB_HOST:latest,\
               DB_POSTGRESDB_USER=N8N_DB_USER:latest,\
