@@ -1,4 +1,4 @@
-name: Deploy n8n to Production
+name: Deploy N8N to Production
 
 on:
   push:
