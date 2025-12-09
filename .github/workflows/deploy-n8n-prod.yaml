@@ -6,10 +6,6 @@ on:
     paths:
       - '.github/workflows/deploy-n8n-prod.yaml'
 
-environment:
-  name: production
-  url: https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app
-
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: asia-southeast1
@@ -19,6 +15,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app
     
     steps:
       - name: Checkout Code
