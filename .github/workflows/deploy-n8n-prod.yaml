@@ -3,8 +3,6 @@ name: Deploy n8n to Production
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - '.github/workflows/deploy-n8n-prod.yaml'
 
 environment:
   name: production
