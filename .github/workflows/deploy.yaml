@@ -3,6 +3,8 @@ name: Deploy n8n to Production
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/deploy-n8n-prod.yaml'
 
 environment:
   name: production
@@ -13,7 +15,6 @@ env:
   REGION: asia-southeast1
   SERVICE_NAME: n8n-prod-engine
   IMAGE_VERSION: 1.121.3
-  IMAGE_URL: n8nio/n8n:${{ env.IMAGE_VERSION }}
 
 jobs:
   deploy:
@@ -34,7 +35,7 @@ jobs:
       - name: Deploy N8N Service to Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.IMAGE_URL }} \
+            --image n8nio/n8n:${{ env.IMAGE_VERSION }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --service-account github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
