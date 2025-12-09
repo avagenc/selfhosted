@@ -1,0 +1,63 @@
+name: Deploy N8N Automation Engine (1. Production)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.github/workflows/deploy-n8n-prod.yaml'
+
+environment:
+  name: production
+  url: https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-southeast1
+  SERVICE_NAME: n8n-prod-engine
+  IMAGE_VERSION: 1.121.3
+  IMAGE_URL: n8nio/n8n:${{ env.IMAGE_VERSION }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy N8N Service to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.IMAGE_URL }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --service-account github-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --no-allow-unauthenticated \
+            --memory 1Gi \
+            --cpu 1 \
+            --execution-environment gen2 \
+            --min-instances 1 \
+            --max-instances 5 \
+            --update-env-vars \
+              DB_TYPE=postgresdb,\
+              DB_POSTGRESDB_PORT=5432,\
+              DB_POSTGRESDB_SSL_MODE=require,\
+              N8N_HOST=https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app,\
+              N8N_EDITOR_BASE_URL=https://${{ env.SERVICE_NAME }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app,\
+              N8N_PROTOCOL=https,\
+              N8N_PORT=5678,\
+              N8N_DIAGNOSTICS_ENABLED=false \
+            --update-secrets \
+              DB_POSTGRESDB_HOST=N8N_DB_HOST:latest,\
+              DB_POSTGRESDB_USER=N8N_DB_USER:latest,\
+              DB_POSTGRESDB_DATABASE=N8N_DB_NAME:latest,\
+              DB_POSTGRESDB_PASSWORD=N8N_DB_PASS:latest,\
+              N8N_ENCRYPTION_KEY=N8N_ENCRYPTION_KEY:latest
