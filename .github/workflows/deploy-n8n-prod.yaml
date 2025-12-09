@@ -1,4 +1,4 @@
-name: Deploy N8N Automation Engine (1. Production)
+name: Deploy n8n for Production
 
 on:
   push:
